@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Day3Trade{% endblock %}
+
+{% block content %}
+<script>
+    function toggleTheory() {
+        var theorySection = document.getElementById('theory-section');
+        if (theorySection.style.display === 'none') {
+            theorySection.style.display = 'block';
+        } else {
+            theorySection.style.display = 'none';
+        }
+    }
+</script>
+
+<div class="content">
+
+    <h1>Test the Strategy</h1>
+    <p>By using some historical market data, let's find out the performance of this 3-day trade strategy below:</p>
+
+    {% if result %}
+        <img src="data:image/png;base64,{{ day3_chart }}" alt="Trade Signals Chart">
+
+        <h2>Trade Data:</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>The percentage change of first significant day</th>
+                    <th>The percentage change of second significant day</th>
+                    <th>The percentage change of third day (Trade Day)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in trade_data.iterrows() %}
+                <tr class="{% if (row['PercentageChangeYesterday'] > 0 and row['PercentageChange'] < 0) or (row['PercentageChangeYesterday'] < 0 and row['PercentageChange'] > 0) %}highlight-row{% endif %}">
+                        <td>{{ index.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ "{:.3f}".format(row['PercentageChange2DayAgo']) }}%</td>
+                        <td>{{ "{:.3f}".format(row['PercentageChangeYesterday']) }}%</td>
+                        <td>
+                            {% if (row['PercentageChange2DayAgo'] > 0 and row['PercentageChange'] < 0) or (row['PercentageChange2DayAgo'] < 0 and row['PercentageChange'] > 0) %}
+                                <span style="color: red;">WIN</span>
+                            {% else %}
+                                <span style="color: green;">LOSE</span>
+                            {% endif %}
+                            ({{ "{:.3f}".format(row['PercentageChange']) }}%)
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>Trade Results:</h2>
+        <p>Number of Trades: {{ num_trades }}</p>
+        <p>Cumulative Percentage Gain/Loss: {{ cumulative_percentage_gain }} %</p>
+        <br>
+        <p>That's mean you can get a cumulative <span class="highlight">{{ cumulative_percentage_gain }} %</span> gain in <span class="highlight">{{ num_trades }}</span> trading days. ( Buy at the open and sell at the close on the Same Day)</p>
+        <br>
+        <h2>Test this strategy with other stock data: </h2>
+    {% endif %}
+
+    <div>
+        <form action="/day3_trade" method="post">
+            <label for="stock_symbol">Stock Symbol:</label>
+            <input type="text" id="stock_symbol" name="stock_symbol" required>
+            <br>
+            <label for="start_date">Start Date: (better start from longer duration, e.g. 01/01/2010)</label>
+            <br>
+            <input type="date" id="start_date" name="start_date" required>
+            <br>
+            <label for="end_date">End Date:</label>
+            <br>
+            <input type="date" id="end_date" name="end_date" required>
+            <br>
+            <label for="change2day">The percentage change of first significant day: (better test this strategy with significant % change, e.g. 3% or more)</label>
+            <br>
+            <input type="number" id="change2day" name="change2day" step="0.01" required>
+            <br>
+            <label for="change1day">The percentage change of second significant day: (better test this strategy with significant % change, e.g. 3% or more)</label>
+            <br>
+            <input type="number" id="change1day" name="change1day" step="0.01" required>
+            <br>
+            
+            <br>
+            <input type="submit" value="Run Strategy">
+        </form>
+        {% if symbol_valid_message %}
+        <p style="color: red;">{{  symbol_valid_message  }}</p>
+        {% endif %}
+    </div>
+    <br>
+    <button class="see-theory-button" onclick="toggleTheory()">See Theory</button>
+    <div id="theory-section" style="display: none;">
+        <h1>Understanding 3-Day Market Movements</h1>
+        <p>After a market drop, a common pattern involves a rebound, often associated with certain behaviors:</p>
+        <br>
+        <h2>First Day of Drop:</h2>
+        <p>Professional investors, hedge funds, and other institutional traders may cut losses, leading to a quick and significant market drop. Responding quickly and effectively to market conditions, they contribute to the initial downward pressure.</p>
+        <br>
+        <h2>Second Day of Drop:</h2>
+        <p>Traders with a slower response to market movements and some funds and investors may continue to push the market down, but with reduced strength compared to the first day. The selling pressure persists but tends to be less intense.</p>
+        <br>
+        <h2>Third Day of Drop:</h2>
+        <p>The selling power is often exhausted by the third day. Typically, only those with the lowest response to market conditions or those in a panic may continue to sell. This exhaustion of selling pressure often leads to a rebound, and the market may start to recover.</p>
+        <br>
+        <p>The 3-day rule is not only applicable to price drops but also to price increases.</p>
+        <br>
+    </div>
+</div>
+
+
+
+{% endblock %}

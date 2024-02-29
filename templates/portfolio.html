@@ -1,0 +1,94 @@
+<!-- portfolio.html -->
+{% extends 'base.html' %}
+
+{% block title %}Portfolio{% endblock %}
+
+{% block content %}
+        <!-- Part 1: Virtual Trading -->
+        <h2>Cash Balance : ${{ user.cash_value|round(2, 'ceil') }}</h2>
+        <h2>Stock Balance: ${{ user_balance['stock_balance']|round(2, 'ceil') }}</h2>
+        <h2>Total Balance : ${{ user_balance['total_balance']|round(2, 'ceil') }}</h2>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        {% if user.stocks %}
+        <table>
+            <tr>
+                <th>Symbol</th>
+                <th>Current Price</th>
+                <th>Holding Shares</th>
+                <th>Average Cost</th>
+                <th>Holding Percentage</th>
+                <th>Profit/Loss</th>
+                <th>Buy Quantity</th>
+                <th>Sell Quantity</th>
+            </tr>
+            {% for symbol, stock_data in user.stocks.items() %}
+                <tr>
+                    <td>{{ symbol }}</td>
+                    <td>${{ stock_data.latest_price|round(3, 'ceil') }}</td>
+                    <td>{{ stock_data.quantity }}</td>
+                    <td>${{ stock_data.average_price|round(3, 'ceil') }}</td>
+                    <td>{{ (stock_data.quantity * stock_data.latest_price * 100 / user_balance['total_balance'])|round(2, 'ceil') }}%</td>
+                    <td class="{% if (stock_data.quantity * (stock_data.latest_price - stock_data.average_price)) >= 0 %}positive{% else %}negative{% endif %}">
+                        ${{ (stock_data.quantity * (stock_data.latest_price - stock_data.average_price))|round(3, 'ceil') }}
+                    </td>
+                    <td>
+                        <form action="/buy_sell" method="post">
+                            <input type="hidden" name="symbol" value="{{ symbol }}">
+                            <label for="buy_quantity">Quantity:</label>
+                            <input type="number" name="quantity" required>
+                            <input type="hidden" name="action" value="buy">
+                            <button type="submit">Buy</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/buy_sell" method="post">
+                            <input type="hidden" name="symbol" value="{{ symbol }}">
+                            <label for="sell_quantity">Quantity:</label>
+                            <input type="number" name="quantity" required>
+                            <input type="hidden" name="action" value="sell">
+                            <button type="submit">Sell</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+            <p>No stocks in the portfolio.</p>
+        {% endif %}
+
+    <!-- Part 2: Stock Information -->
+    <h2>Stock Information</h2>
+    <form action="/get_stock_info" method="post">
+        <label for="stock_symbol">Enter Stock Symbol:</label>
+        <input type="text" name="stock_symbol" required>
+        <input type="submit" value="Get Info">
+    </form>
+    {% if symbol_valid_message %}
+    <p style="color: red;">{{  symbol_valid_message  }}</p>
+    {% endif %}
+
+    {% if stock_info %}
+        <p>Stock Symbol: {{ stock_info.symbol }}</p>
+        <p>Real-time Price: ${{ stock_info.latest_price }}</p>
+
+        <form action="/add_to_watchlist" method="post">
+            <input type="hidden" name="symbol" value="{{ stock_info.symbol }}">
+            <input type="submit" value="Add {{ stock_info.symbol }} to Watchlist">
+        </form>
+
+        <form action="/buy_sell" method="post">
+            <input type="hidden" name="symbol" value="{{ stock_info.symbol }}">
+            <label for="quantity">Quantity:</label>
+            <input type="number" name="quantity" required>
+            <label for="action">Action:</label>
+            <select name="action" required>
+                <option value="buy">Buy</option>
+                <option value="sell">Sell</option>
+            </select>
+            <input type="submit" value="Buy/Sell">
+        </form>
+    {% endif %}
+        
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Risk_return{% endblock %}
+
+{% block content %}
+
+<div class="content">
+    <h1>Risk and Return Comparison</h1>
+    <p>Striving for maximum return with minimum risk is a key goal in building a successful investment portfolio. Let's analyze your personal portfolio to identify stocks with the most favorable return-to-risk ratios.</p>
+    <br>
+
+    <h2>Risk-Return Profile:</h2>
+    <p>Examine the risk-return profile to find stocks positioned at the upper left-hand corner, indicating lower risk with higher return. Conversely, avoid stocks in the bottom right-hand corner, reflecting higher risk with lower return.</p>
+    <img src="data:image/png;base64,{{ risk_return_plot }}" alt="Risk Return Chart">
+    <p>Graph generated for the period from {{ start_date }} to {{ end_date }}.</p>
+    <br>
+
+    <p>Adjust the timeframe for personalized risk-return analysis:</p>
+    <form action="/risk_return" method="post">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required>
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required>
+        <button type="submit">Generate New Analysis</button>
+    </form>
+    <br>
+
+    <h2>Sorted Watchlist</h2>
+    <p>Explore your watchlist to find stocks with the most favorable return-to-risk ratios:</p>
+    <p>You can also add or remove a stock from your watchlist.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Avg Return</th>
+                <th>Risk</th>
+                <th>Return/Risk Ratio</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index, row in sorted_watchlist.iterrows() %}
+                <tr>
+                    <td>{{ row['symbol'] }}</td>
+                    <td>{{ "{:.3f}".format(row['avg_return']) }}</td>
+                    <td>{{ "{:.3f}".format(row['risk']) }}</td>
+                    <td>{{ "{:.3f}".format(row['return_risk_ratio']) }}</td>
+                    <td>
+                        <form action="/delete_from_watchlist" method="post">
+                            <input type="hidden" name="symbol" value="{{ row['symbol'] }}">
+                            <input type="hidden" name="start_date" value="{{ start_date }}">
+                            <input type="hidden" name="end_date" value="{{ end_date }}">
+                            <input type="hidden" name="redirect_url" value="risk_return">
+                            <button type="submit">Delete from watchlist</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div>
+        <form action="/add_to_watchlist" method="post">
+            <label for="symbol">Add Stock into your watchlist and re-generate the risk-return analysis:</label>
+            <input type="text" name="symbol" required>
+            <input type="hidden" name="start_date" value="{{ start_date }}">
+            <input type="hidden" name="end_date" value="{{ end_date }}">
+            <input type="hidden" name="redirect_url" value="risk_return">
+            <input type="submit" value="Add to Watchlist">
+        </form>
+        {% if symbol_valid_message %}
+        <p style="color: red;">{{  symbol_valid_message  }}</p>
+        {% endif %}
+    </div>
+    <br>
+
+    {% if sorted_watchlist|length > 0 %}
+        <div>
+            <h2>Best return-to-risk ratio:</h2>
+            <p>Based on the risk-return analysis, consider adding <span class="highlight">{{ sorted_watchlist.iloc[0]['symbol'] }} </span>to your portfolio for optimal risk-adjusted returns.</p>
+        </div>
+    {% else %}
+        <div>
+            <p>No data available for personalized recommendation.</p>
+        </div>
+    {% endif %}
+    <br>
+</div>
+</div>
+
+
+
+{% endblock %}

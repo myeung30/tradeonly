@@ -1,0 +1,29 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    {% if user %}
+    <nav>
+        <ul>
+            <li>Welcome, {{ user.username }}         ||</li>
+            <li><a href="/portfolio">Portfolio</a></li>
+            <li><a href="/watchlist">Watchlist</a></li>
+            <li><a href="/day3_trade">Day 3 Trading Strategy</a></li>
+            <li><a href="/risk_return">Risk Return Analysis</a></li>
+            <li><a href="/setting">Settings </a></li>
+            <li><a href="/logout">Sign Out</a></li>
+        </ul>
+    </nav>
+    {% endif %}
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

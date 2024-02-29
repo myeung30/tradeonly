@@ -1,0 +1,150 @@
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: black; /* Set background color to black */
+    color: white; /* Set text color to white */
+}
+
+nav {
+    background-color: #1e90ff; /* Set navigation bar color to a professional matching color */
+    color: white;
+    padding: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
+}
+
+.content {
+    padding: 20px;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+    color: black; /* Set text color of thead to black */
+}
+
+/* Form Styles */
+form {
+    margin-bottom: 20px;
+}
+
+form label {
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="password"],
+form select {
+    width: 250px;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+form input[type="number"] {
+    width: 100px;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+form input[type="submit"],
+form button,
+.see-theory-button {
+    background-color: #3a4ad6;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form input[type="submit"]:hover,
+form button:hover {
+    background-color: #3a4ad6;
+}
+
+/* Additional Styles */
+.highlight {
+    font-weight: bold;
+    color: blue;
+}
+
+/* Conditional Styles */
+.positive {
+    color: red;
+}
+
+.negative {
+    color: green;
+}
+
+/* Login and Signup Page Styles */
+.login-form {
+    max-width: 300px;
+    margin: auto;
+}
+
+.signup-form {
+    max-width: 300px;
+    margin: auto;
+}
+
+/* Settings Page Styles */
+.setting-form {
+    max-width: 300px;
+    margin: auto;
+}
+
+.execute-button {
+    background-color: #3a4ad6;
+    color: white;
+    padding: 15px 20px; /* Adjust padding to make the button bigger */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px; /* Increase font size */
+    animation: flashing 1s infinite alternate;
+}
+
+@keyframes flashing {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.5;
+    }
+}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}User Settings{% endblock %}
+
+{% block content %}
+    <h1>User Settings</h1>
+
+    <!-- Change Password Section -->
+    <h2>Change Password</h2>
+    <form action="/setting/change_password" method="POST">
+        <label for="old_password">Old Password:</label>
+        <input type="password" name="old_password" required><br>
+        <label for="new_password">New Password:</label>
+        <input type="password" name="new_password" required><br>
+        <label for="confirm_password">Confirm New Password:</label>
+        <input type="password" name="confirm_password" required><br>
+        <!-- Message for wrong password -->
+        {% if wrong_password %}
+        <p style="color: red;">Wrong password. Please try again.</p>
+        {% endif %}
+        {% if password_mismatch %}
+        <p style="color: red;">Confirm password is not the same as the new password.</p>
+        {% endif %}
+        {% if success_password %}
+        <p style="color: green;">Password updated successfully.</p>
+        {% endif %}
+        <button type="submit">Change Password</button>
+    </form>
+
+    <!-- Three-Day-Rule Section -->
+    <h2>Three-Day-Rule Settings</h2>
+    <form action="/setting/set_three_day_rule" method="POST">
+        <label for="first_day_change">First Day Change (%):</label>
+        <input type="number" name="first_day_change" value="{{ user.three_day_rule.first_day_change|int }}" required><br>
+        <label for="second_day_change">Second Day Change (%):</label>
+        <input type="number" name="second_day_change" value="{{ user.three_day_rule.second_day_change|int }}" required><br>
+        <button type="submit">Save Three-Day-Rule Settings</button>
+    </form>
+    {% if success_three_day %}
+        <p style="color: green;">Three-Day-Rule updated successfully.</p>
+    {% endif %}
+
+    <!-- Maximum Percentage Change Section -->
+    <h2>Maximum Allocation Percentage for A.I. in One Stock</h2>
+    <form action="/setting/set_max_percentage" method="POST">
+        <label for="max_percentage">Maximum Percentage Allocation (%):</label>
+        <input type="number" name="max_percentage" value="{{ user.max_percentage|int }}" required><br>
+        <button type="submit">Save Maximum Percentage Allocation</button>
+    </form>
+    {% if success_max %}
+        <p style="color: green;">Stock Allocation updated successfully.</p>
+    {% endif %}
+{% endblock %}

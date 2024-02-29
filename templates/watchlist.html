@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Watchlist{% endblock %}
+
+{% block content %}
+    <h2>Cash Balance : ${{ user.cash_value|round(2, 'ceil') }}</h2>
+    <h2>Stock Balance: ${{ user_balance['stock_balance']|round(2, 'ceil') }}</h2>
+    <h2>Total Balance : ${{ user_balance['total_balance']|round(2, 'ceil') }}</h2>
+    <br>
+    <form action="/add_to_watchlist" method="post">
+        <label for="symbol">Enter Stock Symbol:</label>
+        <input type="text" name="symbol" required>
+        <input type="submit" value="Add to Watchlist">
+    </form>
+    {% if symbol_valid_message %}
+    <p style="color: red;">{{  symbol_valid_message  }}</p>
+    {% endif %}
+    <h1>Watchlist</h1>
+    {% if watchlist_info %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Action</th>
+                    <th>Current Price</th>
+                    <th>Yesterday Close Price</th>
+                    <th>News</th>
+                    <th>Risk / Return</th>
+                    <th>Day 3 Strategy</th>
+                    <th>Estimated Close price</th>
+                    <th>Holding Shares</th>
+                    <th>Existing allocation</th>
+                    <th>Suggested allocation</th>            
+                    <th>Buy Quantity</th>
+                    <th>Sell Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in watchlist_info %}
+                <tr>
+                    <td>{{ item.symbol }}</td>
+                    <td>
+                        <form action="/delete_from_watchlist" method="post" id="delete-form-{{ item.symbol }}">
+                            <input type="hidden" name="symbol" value="{{ item.symbol }}">
+                            <button type="button" onclick="deleteFromWatchlist('{{ item.symbol }}')">Remove from Watchlist</button>
+                        </form>
+                    </td>
+                    {% if item.latest_price is not none %}
+                        <td class="{% if item.latest_price > item.yesterday_close_price %}positive{% else %}negative{% endif %}">
+                            {{ item.latest_price|round(3, 'ceil') }} ({{ item.percentage_change|round(2, 'ceil') }}%)
+                        </td>
+                    {% else %}
+                        <td>N/A</td>
+                    {% endif %}
+                    <td>${{ item.yesterday_close_price|round(2, 'ceil') }}</td>
+                    <td>{{ item.news_sentiment }}</td>
+                    <td>
+                        {% if item.risk_return is not none %}
+                            {{ item.risk_return|round(2, 'ceil') }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.is_day3_apply is not none %}
+                            {{ item.is_day3_apply }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    {% if item.est_close_price is not none %}
+                        <td class="{% if item.est_close_price > item.yesterday_close_price %}positive{% else %}negative{% endif %}">
+                            {{ item.est_close_price|round(2, 'ceil') }} ({{ item.est_pct_close|round(2, 'ceil') }}%)
+                        </td>
+                    {% else %}
+                        <td>N/A</td>
+                    {% endif %}
+                    <td>{{ item.holding_shares }}</td>
+                    <td>{{ item.existing_allocation|round(2, 'ceil') }}%</td>
+                    <td>
+                        {% if item.suggested_allocation is not none %}
+                            {{ item.suggested_allocation|round(2, 'ceil') }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>                    
+                    <td>
+                        <form action="/buy_sell" method="post">
+                            <input type="number" name="quantity" {% if item.suggested_action == 'buy' %} value={{ item.suggested_quantity }} {% endif %} required>
+                            <input type="hidden" name="symbol" value="{{ item.symbol }}">
+                            <input type="hidden" name="action" value="buy">
+                            <button type="submit">Buy</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/buy_sell" method="post">
+                            <input type="number" name="quantity" {% if item.suggested_action == 'sell' %} value={{ item.suggested_quantity }} {% endif %} required>
+                            <input type="hidden" name="symbol" value="{{ item.symbol }}">
+                            <input type="hidden" name="action" value="sell">
+                            <button type="submit">Sell</button>
+                        </form>
+                    </td>       
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form action="/execute_trades" method="post" class="execute-trades-form" id="execute-trades-form">
+            <button type="submit" class="execute-button">Execute All A.I. Allocation Trades</button>
+        </form>
+    {% else %}
+        <p>No stocks in the watchlist.</p>
+    {% endif %}
+    <br>
+
+    {% if non_watchlist_holding %}
+    <h1>Non-Watchlist Holding</h1>    
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Action</th>
+                <th>Current Price</th>
+                <th>Holding Shares</th>
+                <th>Existing Allocation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in non_watchlist_holding %}
+            <tr>
+                <td>{{ item.symbol }}</td>
+                <td>
+                    <form action="/add_to_watchlist" method="post">
+                        <input type="hidden" name="symbol" value="{{ item.symbol }}">
+                        <button type="submit">Add to watchlist</button>
+                    </form>
+                </td>
+                <td>{{ item.latest_price }}</td>
+                <td>{{ item.holding_shares }}</td>
+                <td>{{ item.existing_allocation|round(3, 'ceil') }}</td>                     
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <script>
+        function deleteFromWatchlist(symbol) {
+            document.getElementById('delete-form-' + symbol).submit();
+        }
+    </script>
+{% endblock %}
